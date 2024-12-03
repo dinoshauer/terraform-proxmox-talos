@@ -1,5 +1,9 @@
 # Copyright (c) 2024 BB Tech Systems LLC
 
+locals {
+    primary_control_node_ip = proxmox_virtual_environment_vm.talos_control_vm[keys(var.control_nodes)[0]].ipv4_addresses[7][0]
+}
+
 resource "proxmox_virtual_environment_download_file" "talos_image" {
     content_type = "iso"
     datastore_id = var.proxmox_iso_datastore
@@ -91,7 +95,7 @@ data "talos_machine_configuration" "control_mc" {
     # TODO - Should we allow the user to override this?
     # This is a single point of failure but without a proxy or load balancer
     # it is required to be a single point of failure.
-    cluster_endpoint = "https://${proxmox_virtual_environment_vm.talos_control_vm[keys(var.control_nodes)[0]].ipv4_addresses[7][0]}:6443"
+    cluster_endpoint = "https://${local.primary_control_node_ip}:6443"
     machine_secrets  = talos_machine_secrets.talos_secrets.machine_secrets
 }
 
@@ -101,7 +105,7 @@ data "talos_machine_configuration" "worker_mc" {
     # TODO - Should we allow the user to override this?
     # This is a single point of failure but without a proxy or load balancer
     # it is required to be a single point of failure.
-    cluster_endpoint = "https://${proxmox_virtual_environment_vm.talos_control_vm[keys(var.control_nodes)[0]].ipv4_addresses[7][0]}:6443"
+    cluster_endpoint = "https://${local.primary_control_node_ip}:6443"
     machine_secrets  = talos_machine_secrets.talos_secrets.machine_secrets
 }
 
@@ -132,7 +136,7 @@ resource "talos_machine_configuration_apply" "talos_worker_mc_apply" {
 
 # You only need to bootstrap 1 control node, we pick the first one
 resource "talos_machine_bootstrap" "talos_bootstrap" {
-    node                 = proxmox_virtual_environment_vm.talos_control_vm[keys(var.control_nodes)[0]].ipv4_addresses[7][0]
+    node                 = local.primary_control_node_ip
     client_configuration = talos_machine_secrets.talos_secrets.client_configuration
 }
 
@@ -141,5 +145,5 @@ resource "talos_cluster_kubeconfig" "talos_kubeconfig" {
         talos_machine_bootstrap.talos_bootstrap
     ]
     client_configuration = talos_machine_secrets.talos_secrets.client_configuration
-    node                 = proxmox_virtual_environment_vm.talos_control_vm[keys(var.control_nodes)[0]].ipv4_addresses[7][0]
+    node                 = local.primary_control_node_ip
 }
