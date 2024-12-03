@@ -2,6 +2,10 @@
 
 locals {
     primary_control_node_ip = proxmox_virtual_environment_vm.talos_control_vm[keys(var.control_nodes)[0]].ipv4_addresses[7][0]
+    node_ips = concat(
+        [for vm in keys(var.control_nodes) : proxmox_virtual_environment_vm.talos_control_vm[vm].ipv4_addresses[7][0]],
+        [for vm in keys(var.worker_nodes) : proxmox_virtual_environment_vm.talos_worker_vm[vm].ipv4_addresses[7][0]]
+    )
 }
 
 resource "proxmox_virtual_environment_download_file" "talos_image" {
@@ -110,12 +114,10 @@ data "talos_machine_configuration" "worker_mc" {
 }
 
 data "talos_client_configuration" "talos_client_config" {
-    cluster_name = var.talos_cluster_name
+    cluster_name         = var.talos_cluster_name
     client_configuration = talos_machine_secrets.talos_secrets.client_configuration
-    nodes = concat(
-        [for vm in keys(var.control_nodes) : proxmox_virtual_environment_vm.talos_control_vm[vm].ipv4_addresses[7][0]],
-        [for vm in keys(var.worker_nodes) : proxmox_virtual_environment_vm.talos_worker_vm[vm].ipv4_addresses[7][0]]
-    )
+    endpoints            = local.node_ips
+    nodes                = local.node_ips
 }
 
 resource "talos_machine_configuration_apply" "talos_control_mc_apply" {
