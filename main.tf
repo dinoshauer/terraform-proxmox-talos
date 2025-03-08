@@ -15,7 +15,7 @@ resource "proxmox_virtual_environment_download_file" "talos_image" {
   datastore_id = var.proxmox_iso_datastore
   node_name    = values(var.control_nodes)[0]
   url          = "https://factory.talos.dev/image/${var.talos_schematic_id}/v${var.talos_version}/metal-${var.talos_arch}.qcow2"
-  file_name    = "talos_linux.img"
+  file_name    = "${var.talos_cluster_name}-talos_linux-${var.talos_schematic_id}-${var.talos_version}-${var.talos_arch}.img"
 }
 
 resource "proxmox_virtual_environment_vm" "talos_control_vm" {
