@@ -126,7 +126,16 @@ resource "talos_machine_configuration_apply" "talos_control_mc_apply" {
   client_configuration        = talos_machine_secrets.talos_secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.control_mc.machine_configuration
   node                        = proxmox_virtual_environment_vm.talos_control_vm[each.key].ipv4_addresses[7][0]
-  config_patches              = var.control_machine_config_patches
+  config_patches = concat(
+    var.control_machine_config_patches,
+    var.talos_set_hostname ? [
+      <<EOF
+      machine:
+        network:
+          hostname: ${each.key}
+      EOF
+    ] : []
+  )
 }
 
 resource "talos_machine_configuration_apply" "talos_worker_mc_apply" {
@@ -134,7 +143,16 @@ resource "talos_machine_configuration_apply" "talos_worker_mc_apply" {
   client_configuration        = talos_machine_secrets.talos_secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.worker_mc.machine_configuration
   node                        = proxmox_virtual_environment_vm.talos_worker_vm[each.key].ipv4_addresses[7][0]
-  config_patches              = var.worker_machine_config_patches
+  config_patches = concat(
+    var.worker_machine_config_patches,
+    var.talos_set_hostname ? [
+      <<EOF
+      machine:
+        network:
+          hostname: ${each.key}
+      EOF
+    ] : []
+  )
 }
 
 # You only need to bootstrap 1 control node, we pick the first one

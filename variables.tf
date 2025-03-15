@@ -87,6 +87,12 @@ variable "talos_arch" {
   default     = "amd64"
 }
 
+variable "talos_set_hostname" {
+  description = "Set the hostname for talos nodes"
+  type        = bool
+  default     = false
+}
+
 # Theses two variables are maps that control how many control and worker nodes are created
 # and what their names are. The keys are the talos node names and the values are the proxmox node names
 # to create the VMs on.
