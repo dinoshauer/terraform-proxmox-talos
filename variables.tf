@@ -118,11 +118,13 @@ variable "control_machine_config_patches" {
   description = "List of YAML patches to apply to the control machine configuration"
   type        = list(string)
   default = [
-    <<EOT
-machine:
-  install:
-    disk: "/dev/vda"
-EOT
+    yamlencode({
+      machine = {
+        install = {
+          disk = "/dev/vda"
+        }
+      }
+    })
   ]
 }
 
@@ -130,11 +132,13 @@ variable "worker_machine_config_patches" {
   description = "List of YAML patches to apply to the worker machine configuration"
   type        = list(string)
   default = [
-    <<EOT
-machine:
-  install:
-    disk: "/dev/vda"
-EOT
+    yamlencode({
+      machine = {
+        install = {
+          disk = "/dev/vda"
+        }
+      }
+    })
   ]
 }
 
