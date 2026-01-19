@@ -147,11 +147,12 @@ resource "talos_machine_configuration_apply" "talos_worker_mc_apply" {
   config_patches = concat(
     var.worker_machine_config_patches,
     var.talos_set_hostname ? [
-      <<EOF
-      machine:
-        network:
-          hostname: ${each.key}
-      EOF
+      yamlencode({
+        apiVersion = "v1alpha1"
+        kind       = "HostnameConfig"
+        hostname   = each.key
+        auto       = "off"
+      })
     ] : []
   )
 }
