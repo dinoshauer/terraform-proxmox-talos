@@ -159,6 +159,9 @@ resource "talos_machine_configuration_apply" "talos_worker_mc_apply" {
 
 # You only need to bootstrap 1 control node, we pick the first one
 resource "talos_machine_bootstrap" "talos_bootstrap" {
+  depends_on = [
+    talos_machine_configuration_apply.talos_control_mc_apply
+  ]
   node                 = local.primary_control_node_ip
   client_configuration = talos_machine_secrets.talos_secrets.client_configuration
 }
