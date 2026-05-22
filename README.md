@@ -13,8 +13,8 @@ export PROXMOX_VE_PASSWORD="super-secret"
 terraform {
   required_providers {
     proxmox = {
-      source = "bpg/proxmox"
-      version = "~> 0.68.0"
+      source  = "bpg/proxmox"
+      version = "~> 0.100.0"
     }
     talos = {
       source = "siderolabs/talos"
@@ -57,6 +57,11 @@ output "kubeconfig" {
     sensitive   = true
 }
 ```
+
+## Upgrade notes
+
+- This module requires `bpg/proxmox` >= 0.100.0 and uses `proxmox_download_file` for the Talos image.
+- When upgrading from an older version, run `tofu init -upgrade` (or `terraform init -upgrade`) and apply once; the `moved` block migrates state without destroy/recreate.
 
 Check out our [blog post](https://bbtechsystems.com/blog/k8s-with-pxe-tf/) for more details on using this module.
 
